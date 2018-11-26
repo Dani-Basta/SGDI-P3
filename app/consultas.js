@@ -242,31 +242,199 @@ function agg4(){
 
 
 //Ejecuciones
-agg1();
-agg2();
-agg3();
-agg4();
+//agg1();
+//agg2();
+//agg3();
+//agg4();
 
   
 /* MAPREDUCE */  
   
-// 1.- 
+/*
+	Listado de países-número de películas rodadas en él.
+*/
 function mr1(){
-	/* */
+	/* 
+	-Map: emitimos cada país de cada película.
+	-Reduce: Sumamos todos los valores, dando lugar al número de películas rodadas en cada país.
+	*/
+
+		MongoClient.connect(url, function(err, db) {
+		  if (err) throw err;
+
+		  db.db(bbdd).collection(filmsCollectionName).mapReduce( 
+		  		
+		  		//Map
+		  		function(){ 
+		  			var i=0;
+		  			for ( i=0;i < this.pais.length; i++){
+		  				emit(this.pais[i],1);	
+		  			}	
+		  		},
+		  		
+		  		//Reduce
+		  		function(key,values){
+		  			return (key,Array.sum(values));
+		  		}, 
+		  		
+		  		{
+		 			out: { inline: 1 }
+		  		},
+		  		function (err, result) {
+			       if (err) throw err;
+			       console.log(result);
+			       db.close();
+			    }		  	
+		  	);
+	   });
 }
 
-// 2.- 
+/*
+Listado de rango de edad-número de usuarios. Los rangos de edad son periodos de 10 añoos:
+[0; 10), [10; 20), [20; 30), etc. Si no hay ningun usuario con edad en un rango concreto dicho rango
+no deberá aparecer en la salida.
+*/
 function mr2(){
-	/* */
+	/*
+	-Map: Obtenemos el intervalo de edad de cada usuario. 
+	-Reduce: Sumamos todos los valores, dando lugar al número de usuarios de cada rango de edad.
+	 */
+
+	MongoClient.connect(url, function(err, db) {
+		  if (err) throw err;
+
+		  db.db(bbdd).collection(usersCollectionName).mapReduce( 
+		  		
+		  		//Map
+		  		function(){ 
+		  			
+		  			var i= this.edad - this.edad%10;
+		  			var j= i+10;
+		  			var interval= "["+i.toString()+","+j.toString()+")";
+
+		  			emit(interval,1);	
+		  		},
+		  		
+		  		//Reduce
+		  		function(key,values){
+		  			return (key,Array.sum(values));
+		  		}, 
+		  		
+		  		{
+		 			out: { inline: 1 }
+		  		},
+		  		function (err, result) {
+			       if (err) throw err;
+			       console.log(result);
+			       db.close();
+			    }		  	
+		  	);
+	   });
 }
 
-// 3.- 
+/*
+Listado de países-(edad mínima, edad-máxima, edad media) teniendo en cuenta únicamente
+los usuarios con más de 17 años.
+*/ 
 function mr3(){
-	/* */
+	/*
+	-Map: Devolvemos la media, edad mínima y edad máxima de cada usuario. Como solo hay una edad, 
+	las tres tienen el mismo valor. Esto se realiza ya que, en el caso de que la clave solo aparezca una
+	vez, no se aplicará la función reduce.
+	-Reduce: Calculamos la media, la edad mínima y la edad máxima para cada país.
+	 */
+
+	MongoClient.connect(url, function(err, db) {
+		  if (err) throw err;
+
+		  db.db(bbdd).collection(usersCollectionName).mapReduce( 
+		  		
+		  		//Map
+		  		function(){ 
+		  			if(this.edad>17){
+		  				//Si solo aparece una vez en la clave, no va al reduce.
+		  				var dict={ avg: this.edad, min: this.edad, max:this.edad};
+		  				emit(this.direccion.pais, dict);
+		  			}
+		  		},
+		  		
+		  		//Reduce
+		  		function(key,values){
+		  			//Calculamos el valor mínimo, el máximo y la media.
+					var v,i, avg=0, min=10000, max=-10000;
+
+		  			for (i=0; i<values.length; i++){
+		  				v=values[i]["avg"];
+		  				avg += v;
+		  				if(min>v) min=v;
+		  				if(max<v) max=v;
+		  			}
+
+		  			return (key,{avg:avg/values.length, min:min, max:max});
+		  		}, 
+		  		{ 
+		  			out: { inline: 1 }
+		  		},
+		  		
+		  		function (err, result) {
+			       if (err) throw err;
+			       console.log(result);
+			       db.close();
+			    }
+		  	);	  	
+	   });
 }
 
-// 4.- 
+/*
+Listado de año-número de visualizaciones veraniegas, donde una ((visualización veraniega))
+es aquella que se ha producido en los meses de junio, julio o agosto.
+*/
 function mr4(){
-	/* */
+	/* 
+	-Map: Obtenemos el mes y el año de cada visualización. Si la visualización se produjo en 
+	junio, julio o agosto, la emitimos.
+	-Reduce: Sumamos todos los valores, dando lugar al número visualizaciones veraniegas 
+	asoaciadas a cada año.
+	*/
+	MongoClient.connect(url, function(err, db) {
+		  if (err) throw err;
+
+		  db.db(bbdd).collection(usersCollectionName).mapReduce( 
+		  		
+		  		//Map
+		  		function(){ 
+		  			var year;
+		  			var month;
+		  			var i
+		  			for ( i=0; i<this.visualizaciones.length; i++){//x in this.visualizaciones){
+		  				x=this.visualizaciones[i]["fecha"];
+		  				month=x.substring(5,7);
+		  				if(parseInt(month)>5 && parseInt(month)<9 ){
+			  				year=x.substring(0,4);
+		  					emit(year,1);
+		  				}
+		  			}
+		  		},
+		  		
+		  		//Reduce
+		  		function(key,values){
+		  			return (key,Array.sum(values));
+		  		}, 
+		  		{ 
+		  			out: { inline: 1 }
+		  		},
+		  		
+		  		function (err, result) {
+			       if (err) throw err;
+			       console.log(result);
+			       db.close();
+			    }
+		  	);	  	
+	   });
 }
 
+//Ejecuciones.
+//mr1();
+//mr2();
+//mr3();
+//mr4();
