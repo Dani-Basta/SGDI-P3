@@ -9,6 +9,29 @@ resultados de los demás.
 
 
 
+/*
+	PARAMETROS DE EJECUCIÓN
+
+	node consultas.js <tipo> <problema>
+
+	donde:
+
+	1-tipo:
+		agg: problemas de Aggregation Pipelines descritos en el enunciado.
+		mr: problemas de Map Reduce descritos en el enunciado.
+	
+	2-problema:
+		1: problema 1
+		2: problema 2
+		...
+
+	Ejemplos de ejecución:
+
+	node.js consultas.js mr 3 => ejecución del problema 3 de Map Reduce.
+	node.js consultas.js agg 1 => ejecución del problema 1 de Aggregation Pipelines.
+
+*/
+
 
 //Parámetros de configuración.
 var bbdd= "sgdi_pr3";
@@ -239,14 +262,6 @@ function agg4(){
 
 
 }
-
-
-//Ejecuciones
-//agg1();
-//agg2();
-//agg3();
-//agg4();
-
   
 /* MAPREDUCE */  
   
@@ -433,8 +448,32 @@ function mr4(){
 	   });
 }
 
-//Ejecuciones.
-//mr1();
-//mr2();
-//mr3();
-//mr4();
+
+//Ejecución
+function mrProblem(num){
+	if(num==1) mr1();
+	else if(num==2) mr2();
+	else if(num==3) mr3();
+	else if(num==4) mr4();
+	else console.log("Error: en Map Reduce solo hay implementados 4 problemas. Introduzca mr {1..4} para ver los resultados");
+}
+
+
+function aggProblem(num){
+	if(num==1) agg1();
+	else if(num==2)	agg2();
+	else if(num==3)	agg3();
+	else if(num==4)	agg4();
+	else console.log("Error: en Aggregation Pipeline solo hay implementados 4 problemas. Introduzca agg {1..4} para ver los resultados");
+}
+
+
+//Se va a ejecutar como main.
+if(process.argv[2]=="mr"){
+	mrProblem(process.argv[3]);
+}else if(process.argv[2]=="agg"){
+	aggProblem(process.argv[3]);
+}else{
+	console.log("Opción introducida no válida.");
+}
+
