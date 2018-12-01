@@ -47,104 +47,73 @@ def pelicula_prefijo( prefijo ):
 # 6.- _id de usuarios con exactamente 'n' gustos, ordenados por edad descendente
 # usuarios_gustos_numero( 6 )
 def usuarios_gustos_numero(n):
+	#buscamos usuarios con 'n' documentos dentro del array 'visualizaciones' 
 	return db.usuarios.find( {"gustos" : {"$size":n } }, {"_id":1} ).sort("edad", pymongo.DESCENDING)
 
 
-# 7.- usuarios que vieron pelicula la pelicula 'id_pelicula' en un periodo 
+# 7.- usuarios que vieron la pelicula 'id_pelicula' en un periodo 
 #     concreto 'inicio' - 'fin'
 # usuarios_vieron_pelicula( '583ef650323e9572e2812680', '2015-01-01', '2016-12-31' )
 def usuarios_vieron_pelicula(id_pelicula, inicio, fin):
+	#Buscamos usuarios que tengan al menos un documento dentro de 'visualizaciones' que encaje con todos los criterios
 	return db.usuarios.find( {"visualizaciones" : { "$elemMatch": { "_id" : ObjectId(id_pelicula), "fecha":{"$gte":inicio ,"$lte":fin} } } } , {"_id":1} )
+
+# Según el valor de la variable 'printExtendido' del main imprimirá cada documento de la consulta en una linea o 
+# 	'desgranará' los resultados para intentar mostrarlos de una forma más legible
+def imprimeCursor( cursor ) : 
+	for doc in  cursor :
+		if not printExtendido : 
+			print(doc)
+		else :
+			for k, v in doc.items():
+				if type(v) == type(list()) and len(v) > 1:
+					print("{", k, ":")
+					for pos in v:
+						print("\t",pos)
+					print("\t}")
+				else:
+					print("{",k,":",v,"}")
+		print()
 
 if __name__ == "__main__" :
 	client = MongoClient()
 	db = client.sgdi_pr3
-	#'''
-	for doc in  usuario_peliculas( 'fernandonoguera', 3 ) :
-		print(doc)
-		for k, v in doc.items():
-			if type(v) == type(list()) and len(v) > 1:
-				print("{", k, ":")
-				for pos in v:
-					print("\t",pos)
-				print("\t}")
-			else:
-				print("{",k,":",v,"}")
-		print()
-	#'''
+	
+	printExtendido = False
+	
 	'''
-	for doc in   usuarios_gustos(  ['terror', 'comedia'], 5  ) :
-		#print(doc)
-		for k, v in doc.items():
-			if type(v) == type(list()) and len(v) > 1:
-				print("{", k, ":")
-				for pos in v:
-					print("\t",pos)
-				print("\t}")
-			else:
-				print("{",k,":",v,"}")
-		print()
+	print("Busqueda usuario_peliculas")
+	imprimeCursor(  usuario_peliculas( 'fernandonoguera', 3 )  ) 
+	'''
+	
+	'''
+	print("Busqueda usuarios_gustos")
+	imprimeCursor( usuarios_gustos(  ['terror', 'comedia'], 5  ) ) 
+	'''
+	
+	'''
+	print("Busqueda usuario_sexo_edad")
+	imprimeCursor(  usuario_sexo_edad('M', 50, 80) ) 
+	'''
+	
+	'''
+	print("Busqueda usuarios_apellidos")
+	imprimeCursor(  usuarios_apellidos() ) 
+	'''
+	
+	'''
+	print("Busqueda pelicula_prefijo")
+	imprimeCursor( pelicula_prefijo( 'Yol' )  ) 
+	'''
+	
+	'''
+	print("Busqueda usuarios_gustos_numero")
+	imprimeCursor( usuarios_gustos_numero( 6 )   ) 
+	'''
+	
+	'''
+	print("Busqueda usuarios_vieron_pelicula")
+	imprimeCursor( suarios_vieron_pelicula( '583ef650323e9572e2812680', '2015-01-01', '2016-12-31' )  ) 
+	'''
 
-	for doc in   usuario_sexo_edad('M', 50, 80) :
-		#print(doc)
-		for k, v in doc.items():
-			if type(v) == type(list()) and len(v) > 1:
-				print("{", k, ":")
-				for pos in v:
-					print("\t",pos)
-				print("\t}")
-			else:
-				print("{",k,":",v,"}")
-		print()
-
-	for doc in   usuarios_apellidos() :
-		#print(doc)
-		for k, v in doc.items():
-			if type(v) == type(list()) and len(v) > 1:
-				print("{", k, ":")
-				for pos in v:
-					print("\t",pos)
-				print("\t}")
-			else:
-				print("{",k,":",v,"}")
-		print()
-	'''
-	'''
-	for doc in   pelicula_prefijo( 'Yol' ) :
-		print(doc)
-		for k, v in doc.items():
-			if type(v) == type(list()) and len(v) > 1:
-				print("{", k, ":")
-				for pos in v:
-					print("\t",pos)
-				print("\t}")
-			else:
-				print("{",k,":",v,"}")
-		print()
-
-	'''
-	'''
-	for doc in   usuarios_gustos_numero( 6 ) :
-		#print(doc)
-		for k, v in doc.items():
-			if type(v) == type(list()) and len(v) > 1:
-				print("{", k, ":")
-				for pos in v:
-					print("\t",pos)
-				print("\t}")
-			else:
-				print("{",k,":",v,"}")
-		print()
-
-	for doc in   usuarios_vieron_pelicula( '583ef650323e9572e2812680', '2015-01-01', '2016-12-31' ) :
-		#print(doc)
-		for k, v in doc.items():
-			if type(v) == type(list()) and len(v) > 1:
-				print("{", k, ":")
-				for pos in v:
-					print("\t",pos)
-				print("\t}")
-			else:
-				print("{",k,":",v,"}")
-		print()
-	'''
+	
