@@ -81,36 +81,43 @@ if __name__ == "__main__" :
 	
 	printExtendido = False
 	
+	#Apartado 1
 	'''
 	print("Busqueda usuario_peliculas")
 	imprimeCursor(  usuario_peliculas( 'fernandonoguera', 3 )  ) 
 	'''
 	
+	#Apartado 2
 	'''
 	print("Busqueda usuarios_gustos")
 	imprimeCursor( usuarios_gustos(  ['terror', 'comedia'], 5  ) ) 
 	'''
 	
+	#Apartado 3
 	'''
 	print("Busqueda usuario_sexo_edad")
 	imprimeCursor(  usuario_sexo_edad('M', 50, 80) ) 
 	'''
 	
+	#Apartado 4
 	'''
 	print("Busqueda usuarios_apellidos")
 	imprimeCursor(  usuarios_apellidos() ) 
 	'''
 	
+	#Apartado 5
 	'''
 	print("Busqueda pelicula_prefijo")
 	imprimeCursor( pelicula_prefijo( 'Yol' )  ) 
 	'''
 	
+	#Apartado 6
 	'''
 	print("Busqueda usuarios_gustos_numero")
 	imprimeCursor( usuarios_gustos_numero( 6 )   ) 
 	'''
 	
+	#Apartado 7
 	'''
 	print("Busqueda usuarios_vieron_pelicula")
 	imprimeCursor( suarios_vieron_pelicula( '583ef650323e9572e2812680', '2015-01-01', '2016-12-31' )  ) 
