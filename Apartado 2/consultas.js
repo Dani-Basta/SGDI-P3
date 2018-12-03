@@ -1,45 +1,11 @@
 /*
-DanielFranciscoBastarricaLacalle y GabrielSellésSalvà declaramos que esta solución es
+Daniel Bastarrica Lacalle y Gabriel Sellés Salvà declaramos que esta solución es
 fruto exclusivamente de nuestro trabajo personal. No hemos sido ayudados por ninguna
-otra persona ni hemos obtenido la solución de fuentes externas, y tampoco hemos compartido
-nuestra solución con nadie. Declaramos además que no hemos realizado de manera
+otra persona ni hemos obtenido la solución de fuentes externas, y tampoco hemos com-
+partido nuestra solución con nadie. Declaramos además que no hemos realizado de manera
 deshonesta ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los
 resultados de los demás.
 */
-
-
-
-/*
-	PARAMETROS DE EJECUCIÓN
-
-	node consultas.js <tipo> <problema>
-
-	donde:
-
-	1-tipo:
-		agg: problemas de Aggregation Pipelines descritos en el enunciado.
-		mr: problemas de Map Reduce descritos en el enunciado.
-	
-	2-problema:
-		1: problema 1
-		2: problema 2
-		...
-
-	Ejemplos de ejecución:
-
-	node.js consultas.js mr 3 => ejecución del problema 3 de Map Reduce.
-	node.js consultas.js agg 1 => ejecución del problema 1 de Aggregation Pipelines.
-
-*/
-
-
-//Parámetros de configuración.
-var bbdd= "sgdi_pr3";
-var filmsCollectionName="peliculas"
-var usersCollectionName="usuarios"
-
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/";
 
 
 /* AGGREGATION PIPELINE */
@@ -48,16 +14,15 @@ var url = "mongodb://localhost:27017/";
 Listado de país-número de películas rodadas en él, ordenado por número de películas
 descendente y en caso de empate por nombre país ascendente.
 */
+
 function agg1(){
 	/* 
 		1-Realizamos el unwind para obtener un documento por país del atributo "pais".  
 		2-Agrupamos documentos por país y calculamos cuantos documentos hay por cada país. Se almacena el resultado en el atributo "count".
 		3-Ordenamos el resultado por número de apariciones de país (de forma descendiente) y, en caso de empate, por nombre del país (de forma ascendente).
 	*/
-	MongoClient.connect(url, function(err, db) {
-	  if (err) throw err;
-
-	  db.db(bbdd).collection(filmsCollectionName).aggregate( 
+	
+	return  db.peliculas.aggregate( 
 	  		[
 	  			{
 	  				$unwind: {
@@ -65,7 +30,7 @@ function agg1(){
 	  						preserveNullAndEmptyArrays: true
 	  				}
 	  			},
-
+ 
 	  			{
 	  				$group: {
 	  						_id: {pais:"$pais"},
@@ -82,12 +47,7 @@ function agg1(){
 	  			}
 
 	  		]
-	  	).toArray(function(err, result) {
-	    if (err) throw err;
-	    console.log(result);
-	    db.close();
-	  });
-	});
+	  	);
 }
 
 /*
@@ -103,10 +63,8 @@ function agg2(){
 		4- Ordenamos los resultados tal y como se describe en el enunciado.
 		5- Cogemos los 3 resultados con mayor valor en "count". Desechamos el resto.
 	 */
-	MongoClient.connect(url, function(err, db) {
-	  if (err) throw err;
-
-	  db.db(bbdd).collection(usersCollectionName).aggregate( 
+	 
+	return db.usuarios.aggregate( 
 	  		[
 	  			{ $match:{
 	  					"direccion.pais":'Emiratos Árabes Unidos'
@@ -140,12 +98,7 @@ function agg2(){
 
 
 	  		]
-	  	).toArray(function(err, result) {
-	    if (err) throw err;
-	    console.log(result);
-	    db.close();
-	  });
-	});
+	  	);
 }
   
 
@@ -161,11 +114,9 @@ function agg3(){
 		la media de las edades, el valor mínimo y el valor máximo.
 		3- Obtenemos los documentos resultantes que tengan mínimo 3 apariciones.
    */
-  MongoClient.connect(url, function(err, db) {
-	  if (err) throw err;
-
-
-	  db.db(bbdd).collection(usersCollectionName).aggregate( 
+   
+   
+  return db.usuarios.aggregate( 
 	  		[
 	  			{ $match:{
 	  					"edad": { $gt: 17}
@@ -189,15 +140,8 @@ function agg3(){
 	  			}
 
 	  		]
-	  	).toArray(function(err, result) {
-	    if (err) throw err;
-	    console.log(result);
-	    db.close();
-	  });
-
-   });
-
-}  
+	  	);
+ }  
   
 
 
@@ -215,11 +159,7 @@ function agg4(){
 	4- Obtenemos los 10 mejores resultados. Desechamos el resto.
   */
 
-	MongoClient.connect(url, function(err, db) {
-		  if (err) throw err;
-
-
-		  db.db(bbdd).collection(usersCollectionName).aggregate( 
+   return db.usuarios.aggregate( 
 		  		[
 			  		{
 			  			
@@ -251,16 +191,7 @@ function agg4(){
 		  			}
 		  		
 		  		]
-		  	).toArray(function(err, result) {
-		    if (err) throw err;
-		    console.log(result);
-		    db.close();
-		  });
-
-	   });
-
-
-
+		  	);
 }
   
 /* MAPREDUCE */  
@@ -274,10 +205,7 @@ function mr1(){
 	-Reduce: Sumamos todos los valores, dando lugar al número de películas rodadas en cada país.
 	*/
 
-		MongoClient.connect(url, function(err, db) {
-		  if (err) throw err;
-
-		  db.db(bbdd).collection(filmsCollectionName).mapReduce( 
+	return db.peliculas.mapReduce( 
 		  		
 		  		//Map
 		  		function(){ 
@@ -293,7 +221,7 @@ function mr1(){
 		  		}, 
 		  		
 		  		{
-		 			out: { inline: 1 }
+		 			out: {inline:1}
 		  		},
 		  		function (err, result) {
 			       if (err) throw err;
@@ -301,7 +229,6 @@ function mr1(){
 			       db.close();
 			    }		  	
 		  	);
-	   });
 }
 
 /*
@@ -315,10 +242,7 @@ function mr2(){
 	-Reduce: Sumamos todos los valores, dando lugar al número de usuarios de cada rango de edad.
 	 */
 
-	MongoClient.connect(url, function(err, db) {
-		  if (err) throw err;
-
-		  db.db(bbdd).collection(usersCollectionName).mapReduce( 
+	return db.usuarios.mapReduce( 
 		  		
 		  		//Map
 		  		function(){ 
@@ -336,15 +260,14 @@ function mr2(){
 		  		}, 
 		  		
 		  		{
-		 			out: { inline: 1 }
+		 			out: {inline:1}
 		  		},
 		  		function (err, result) {
 			       if (err) throw err;
 			       console.log(result);
 			       db.close();
 			    }		  	
-		  	);
-	   });
+		  	);;
 }
 
 /*
@@ -359,16 +282,13 @@ function mr3(){
 	-Reduce: Calculamos la media, la edad mínima y la edad máxima para cada país.
 	 */
 
-	MongoClient.connect(url, function(err, db) {
-		  if (err) throw err;
-
-		  db.db(bbdd).collection(usersCollectionName).mapReduce( 
+	return db.usuarios.mapReduce( 
 		  		
 		  		//Map
 		  		function(){ 
 		  			if(this.edad>17){
 		  				//Si solo aparece una vez en la clave, no va al reduce.
-		  				var dict={ avg: this.edad, min: this.edad, max:this.edad};
+		  				var dict={ min: this.edad, max:this.edad, avg: this.edad};
 		  				emit(this.direccion.pais, dict);
 		  			}
 		  		},
@@ -385,10 +305,10 @@ function mr3(){
 		  				if(max<v) max=v;
 		  			}
 
-		  			return (key,{avg:avg/values.length, min:min, max:max});
+		  			return (key,{min:min, max:max, avg:avg/values.length});
 		  		}, 
 		  		{ 
-		  			out: { inline: 1 }
+		  			out: {inline:1}
 		  		},
 		  		
 		  		function (err, result) {
@@ -396,8 +316,7 @@ function mr3(){
 			       console.log(result);
 			       db.close();
 			    }
-		  	);	  	
-	   });
+		  	);
 }
 
 /*
@@ -411,10 +330,8 @@ function mr4(){
 	-Reduce: Sumamos todos los valores, dando lugar al número visualizaciones veraniegas 
 	asoaciadas a cada año.
 	*/
-	MongoClient.connect(url, function(err, db) {
-		  if (err) throw err;
-
-		  db.db(bbdd).collection(usersCollectionName).mapReduce( 
+	
+	return db.usuarios.mapReduce( 
 		  		
 		  		//Map
 		  		function(){ 
@@ -436,7 +353,7 @@ function mr4(){
 		  			return (key,Array.sum(values));
 		  		}, 
 		  		{ 
-		  			out: { inline: 1 }
+		  			out: {inline:1}
 		  		},
 		  		
 		  		function (err, result) {
@@ -444,36 +361,5 @@ function mr4(){
 			       console.log(result);
 			       db.close();
 			    }
-		  	);	  	
-	   });
+		  	);
 }
-
-
-//Ejecución
-function mrProblem(num){
-	if(num==1) mr1();
-	else if(num==2) mr2();
-	else if(num==3) mr3();
-	else if(num==4) mr4();
-	else console.log("Error: en Map Reduce solo hay implementados 4 problemas. Introduzca mr {1..4} para ver los resultados");
-}
-
-
-function aggProblem(num){
-	if(num==1) agg1();
-	else if(num==2)	agg2();
-	else if(num==3)	agg3();
-	else if(num==4)	agg4();
-	else console.log("Error: en Aggregation Pipeline solo hay implementados 4 problemas. Introduzca agg {1..4} para ver los resultados");
-}
-
-
-//Se va a ejecutar como main.
-if(process.argv[2]=="mr"){
-	mrProblem(process.argv[3]);
-}else if(process.argv[2]=="agg"){
-	aggProblem(process.argv[3]);
-}else{
-	console.log("Opción introducida no válida.");
-}
-
