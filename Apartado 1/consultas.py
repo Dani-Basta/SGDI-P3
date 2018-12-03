@@ -9,6 +9,7 @@ deshonesta ninguna otra actividad que pueda mejorar nuestros resultados ni perju
 resultados de los demás.
 '''
 
+import pymongo 
 from pymongo import MongoClient
 
 from bson.objectid import ObjectId
@@ -73,7 +74,7 @@ def imprimeCursor( cursor ) :
 					print("\t}")
 				else:
 					print("{",k,":",v,"}")
-		print()
+	print()
 
 if __name__ == "__main__" :
 	client = MongoClient()
@@ -82,7 +83,7 @@ if __name__ == "__main__" :
 	printExtendido = False
 	
 	#Apartado 1
-	'''
+	#'''
 	print("Busqueda usuario_peliculas")
 	imprimeCursor(  usuario_peliculas( 'fernandonoguera', 3 )  ) 
 	'''
@@ -120,7 +121,7 @@ if __name__ == "__main__" :
 	#Apartado 7
 	'''
 	print("Busqueda usuarios_vieron_pelicula")
-	imprimeCursor( suarios_vieron_pelicula( '583ef650323e9572e2812680', '2015-01-01', '2016-12-31' )  ) 
-	'''
+	imprimeCursor( usuarios_vieron_pelicula( '583ef650323e9572e2812680', '2015-01-01', '2016-12-31' )  ) 
+	#'''
 
 	
